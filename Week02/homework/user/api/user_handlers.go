@@ -19,6 +19,8 @@ type RegisterResponse struct {
 }
 
 func RegisterHandler(c *gin.Context) {
+
+	// 获取post参数
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 	email := c.PostForm("email")
@@ -36,11 +38,11 @@ func RegisterHandler(c *gin.Context) {
 
 
 	if err != nil {
-		c.JSON(200, userInfoDTO)
-	} else {
 		c.JSON(200,gin.H{
-			"message":"register failure.",
+			"message": err.Error(),
 		})
+	} else {
+		c.JSON(200, userInfoDTO)
 	}
 
 }
