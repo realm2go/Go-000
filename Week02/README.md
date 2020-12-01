@@ -6,7 +6,7 @@ dao遇到错误，应该wrap错误，并补充相关信息，往上抛。
 
 service层对错误进行判断，假如是特定错误，可以选择降级处理，吞掉错误，也可以继续往上抛，最终处理一次；
 
-#### 1 error 本质
+### 1 error 本质
 ```
 // error 是一个普通的接口
 type error interface {
@@ -63,7 +63,7 @@ func biz() error{
 error 只应该被处理一次，打日志也算处理。为了避免error的多次处理，与日志冗余，error只在最顶层处理，下层业务只负责往事抛出,但是这样出现问题有很难排查，所以需要error带上一些元数据 如：堆栈信息
 引入 github.com/pkg/errors 这个包，多error进行Wrap操作
 
-####wrap error 的注意事项:
+### wrap error 的注意事项:
 - error每Wrap一次都会带上一次堆栈信息，如果每层都wrap的话，会导致error中带入了大量的重复信息
     所以每个error只应该被wrap一次，就是在error第一次产生的地方
     
