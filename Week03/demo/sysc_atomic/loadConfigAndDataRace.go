@@ -11,19 +11,18 @@ type Config struct {
 }
 
 func main() {
+	cfg := &Config{}
 
 	// 使用原子操作
-	//var v atomic.Value
-	//v.Store(cfg) // 存储的结构类型
 	var v atomic.Value
-	v.Store(&Config{})  // 类型
+	v.Store(cfg) // 存储的结构类型
 
 	// 模拟1人写
 	go func(){
 		i := 0
 		for {
 			i++
-			cfg := &Config{a :[]int{i,i+1,i+2,i+3,i+4,i+5}}
+			cfg.a = []int{i,i+1,i+2,i+3,i+4,i+5}
 			v.Store(cfg)  // 用原子保存
 		}
 	}()
@@ -34,8 +33,8 @@ func main() {
 		wg.Add(1)
 		go func(){
 			//for n := 0;n < 100; n++{
-				cfg := v.Load().(*Config)
-				fmt.Printf("%v\n",cfg)
+			cfg := v.Load().(*Config)
+			fmt.Printf("%v\n",cfg)
 			//}
 			wg.Done()
 		}()
