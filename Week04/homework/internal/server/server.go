@@ -25,11 +25,14 @@ func NewServer(s *service.Service) *Server {
 
 func (srv *Server) Run() error {
 	lis, err := net.Listen("tcp", viper.GetString("grpc.port"))
+
 	if err != nil {
 		return err
 	}
+
 	g, ctx := errgroup.WithContext(context.Background())
 	s := grpc.NewServer()
+
 	g.Go(func() error {
 		go func() {
 			<-ctx.Done()
@@ -39,6 +42,7 @@ func (srv *Server) Run() error {
 		//pb.GetUser(s, srv.service)
 		return s.Serve(lis)
 	})
+
 	g.Go(func() error {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
