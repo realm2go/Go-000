@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	limitCount int = 100 // 6s限频
+	limitCount int = 20 // 限定在滑动窗口内，允许处理多少个请求，超出的则丢弃
 	limitBucket int = 10 // 滑动窗口个数
-	curCount int32 = 0  // 记录限频数量
+	curCount int32 = 0  // 当前请求数
 	head *ring.Ring     // 环形队列（链表）
 )
 
@@ -33,17 +33,20 @@ func main() {
 	go func() {
 		timer := time.NewTicker(time.Second * 1)
 		for range timer.C { // 定时每隔1秒刷新一次滑动窗口数据
+			// 刷新一次,取出头部桶的计数，原子计算
 			subCount := int32(0 - head.Value.(int))
-			fmt.Println("subCount:",subCount)
 			newCount := atomic.AddInt32(&curCount, subCount)
-			fmt.Println("newCount:",newCount)
 
+			// -----------------------这里是为了方便打印
 			arr := [10]int{}
-			for i := 0; i < limitBucket; i++ { // 这里是为了方便打印
+			for i := 0; i < limitBucket; i++ {
 				arr[i] = head.Value.(int)
 				head = head.Next()
 			}
 			fmt.Println("move subCount,newCount,arr", subCount, newCount,arr)
+			//------------------------
+
+
 			head.Value = 0
 			head = head.Next()
 		}
@@ -62,7 +65,7 @@ func main() {
 func handle(conn *net.Conn) {
 	defer (*conn).Close()
 	n := atomic.AddInt32(&curCount, 1)
-	fmt.Println("handler n:", n)
+	//fmt.Println("handler n:", n)
 	if n > int32(limitCount) { // 超出限频
 		atomic.AddInt32(&curCount, -1) // add 1 by atomic，业务处理完毕，放回令牌
 		(*conn).Write([]byte("HTTP/1.1 404 NOT FOUND\r\n\r\nError, too many request, please try again."))
