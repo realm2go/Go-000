@@ -35,6 +35,8 @@ func NewSlidingWindow(bucket int) *SlidingWindow {
 	return sw
 }
 
+
+
 //统计成功
 func (sw *SlidingWindow) AddSuccess() {
 	sw.incr(typeSuccess)
@@ -103,3 +105,4 @@ func (sw *SlidingWindow) Data(space int) []*metrics {
 	}
 	return data
 }
+
