@@ -22,10 +22,10 @@ type metrics struct {
 
 //滑动窗口
 type SlidingWindow struct {
-	bucket int                //桶数
-	curKey int64              //当前key
-	m      map[int64]*metrics //统计
-	dataList   *list.List
+	bucket   int                //桶数
+	curKey   int64              //当前key
+	m        map[int64]*metrics //统计
+	dataList *list.List
 	sync.RWMutex
 }
 
@@ -36,8 +36,6 @@ func NewSlidingWindow(bucket int) *SlidingWindow {
 	sw.dataList = list.New()
 	return sw
 }
-
-
 
 //统计成功
 func (sw *SlidingWindow) AddSuccess() {
@@ -64,7 +62,7 @@ func (sw *SlidingWindow) incr(t int) {
 	//一秒一个bucket
 	if sw.curKey != nowTime {
 		sw.dataList.PushBack(sw.m[nowTime])
-		delete(sw.m,sw.curKey)
+		delete(sw.m, sw.curKey)
 		sw.curKey = nowTime
 
 		if sw.dataList.Len() > sw.bucket {
@@ -100,7 +98,7 @@ func (sw *SlidingWindow) Data(space int) []*metrics {
 		one := i.Value.(*metrics)
 		m.success += one.success
 		m.fail += one.fail
-		if num % space == 0 {
+		if num%space == 0 {
 			data = append(data, m)
 			m = &metrics{} //重置m
 		}
@@ -108,8 +106,6 @@ func (sw *SlidingWindow) Data(space int) []*metrics {
 	}
 	return data
 }
-
-
 
 func main1() {
 	rand.Seed(time.Now().UnixNano())
@@ -125,15 +121,20 @@ func main1() {
 		time.Sleep(time.Duration(rand.Intn(20)) * time.Millisecond)
 	}
 
-	fmt.Println("sw dataList len:",sw.Len())
+	fmt.Println("sw dataList len:", sw.Len())
 	for _, item := range sw.Data(3) {
-		log.Printf("success: %v, fail:%v\n",item.success,item.fail)
+		log.Printf("success: %v, fail:%v\n", item.success, item.fail)
 	}
 }
 
 func main() {
 
-	fmt.Println(time.Now().UnixNano())
-	now := time.Now().UnixNano() / 1e6
-	fmt.Println(now)
+	//fmt.Println(time.Now().UnixNano())
+	//now := time.Now().UnixNano() / 1e6
+	//fmt.Println(now)
+
+	t := time.Now()
+	fmt.Println("t:", t)
+	t1 := t.Add(-time.Second * 5).Add(time.Second * 20)
+	fmt.Println("t:", t1)
 }
